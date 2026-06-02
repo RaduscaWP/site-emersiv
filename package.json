@@ -1,0 +1,26 @@
+{
+  "name": "stringtune",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "14.2.3",
+    "react": "^18",
+    "react-dom": "^18",
+    "gsap": "^3.12.5",
+    "three": "^0.164.1",
+    "@react-three/fiber": "^8.16.8",
+    "@react-three/drei": "^9.105.6",
+    "lenis": "^1.1.14"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.0.1",
+    "postcss": "^8",
+    "tailwindcss": "^3.3.0"
+  }
+}
