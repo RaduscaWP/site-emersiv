@@ -3,13 +3,7 @@ import { useEffect, useRef } from 'react'
 
 function InstagramIcon({ size = 80 }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 60 60"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg width={size} height={size} viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect width="60" height="60" rx="14" fill="url(#igGrad)" />
       <rect x="15" y="15" width="30" height="30" rx="8" stroke="white" strokeWidth="3" />
       <circle cx="30" cy="30" r="8" stroke="white" strokeWidth="3" />
@@ -50,29 +44,24 @@ export default function EndCard() {
           },
         })
 
-        // Overlay in
         tl.fromTo(overlayRef.current, { opacity: 0 }, { opacity: 1, duration: 0.4 }, 0)
-
-        // Icon drops in
         tl.fromTo(
           iconRef.current,
-          { y: -30, opacity: 0, scale: 0.7 },
-          { y: 0, opacity: 1, scale: 1, duration: 0.5, ease: 'back.out(1.5)' },
-          0.2
+          { y: -30, opacity: 0, scale: 0.6 },
+          { y: 0, opacity: 1, scale: 1, duration: 0.55, ease: 'back.out(1.4)' },
+          0.25
         )
-
-        // Handle fades up
         tl.fromTo(
           handleRef.current,
-          { y: 16, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.4, ease: 'power2.out' },
-          0.5
+          { y: 20, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.45, ease: 'power2.out' },
+          0.55
         )
 
-        // Pulsing glow on icon
+        // Pulsing glow
         gsap.to(iconRef.current, {
-          filter: 'drop-shadow(0 0 24px rgba(188,24,136,0.7)) drop-shadow(0 0 8px rgba(240,148,51,0.5))',
-          duration: 1.5,
+          filter: 'drop-shadow(0 0 28px rgba(188,24,136,0.8)) drop-shadow(0 0 10px rgba(240,148,51,0.5))',
+          duration: 1.6,
           yoyo: true,
           repeat: -1,
           ease: 'sine.inOut',
@@ -80,7 +69,6 @@ export default function EndCard() {
         })
       }, sectionRef)
     })()
-
     return () => ctx && ctx.revert()
   }, [])
 
@@ -90,30 +78,33 @@ export default function EndCard() {
       style={{
         position: 'relative',
         minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
         overflow: 'hidden',
-        background: '#f5f0e8',
       }}
     >
-      {/* Zen background (visible through overlay) */}
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          background: 'linear-gradient(180deg, #f5f0e8 0%, #e8ddd0 100%)',
-        }}
-      />
+      {/* ── Real end-card background frame ── */}
+      <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
+        <img
+          src="/assets/key_052_t13.87s_f0416.jpg"
+          alt=""
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            objectPosition: 'center',
+            display: 'block',
+          }}
+        />
+      </div>
 
-      {/* Dark overlay */}
+      {/* Dark overlay (matches frame's own dark overlay) */}
       <div
         ref={overlayRef}
         style={{
           position: 'absolute',
           inset: 0,
-          background: 'rgba(4, 1, 1, 0.88)',
+          background: 'rgba(4,1,1,0.86)',
           zIndex: 2,
+          opacity: 0,
         }}
       />
 
@@ -122,24 +113,23 @@ export default function EndCard() {
         style={{
           position: 'relative',
           zIndex: 10,
-          textAlign: 'center',
+          height: '100vh',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: 20,
+          justifyContent: 'center',
+          textAlign: 'center',
+          gap: 18,
         }}
       >
         <div ref={iconRef} style={{ willChange: 'transform, filter, opacity' }}>
-          <InstagramIcon size={90} />
+          <InstagramIcon size={88} />
         </div>
 
-        <div
-          ref={handleRef}
-          style={{ willChange: 'transform, opacity' }}
-        >
+        <div ref={handleRef} style={{ willChange: 'transform, opacity' }}>
           <div
             style={{
-              fontSize: 'clamp(22px, 4vw, 40px)',
+              fontSize: 'clamp(20px, 4vw, 38px)',
               fontWeight: 800,
               color: 'white',
               letterSpacing: '0.04em',
@@ -150,9 +140,9 @@ export default function EndCard() {
           <div
             style={{
               marginTop: 8,
-              fontSize: 13,
-              color: 'rgba(255,255,255,0.45)',
-              letterSpacing: '0.2em',
+              fontSize: 12,
+              color: 'rgba(255,255,255,0.4)',
+              letterSpacing: '0.22em',
               textTransform: 'uppercase',
             }}
           >
@@ -160,14 +150,7 @@ export default function EndCard() {
           </div>
         </div>
 
-        {/* CTA */}
-        <div
-          style={{
-            marginTop: 16,
-            display: 'flex',
-            gap: 12,
-          }}
-        >
+        <div style={{ display: 'flex', gap: 12, marginTop: 14 }}>
           <button
             style={{
               background: 'linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366)',
@@ -186,8 +169,8 @@ export default function EndCard() {
           <button
             style={{
               background: 'transparent',
-              border: '1px solid rgba(255,255,255,0.25)',
-              color: 'rgba(255,255,255,0.7)',
+              border: '1px solid rgba(255,255,255,0.22)',
+              color: 'rgba(255,255,255,0.65)',
               borderRadius: 999,
               padding: '10px 28px',
               fontSize: 13,
@@ -200,17 +183,17 @@ export default function EndCard() {
         </div>
       </div>
 
-      {/* Bottom StringTune branding */}
+      {/* Bottom branding */}
       <div
         style={{
           position: 'absolute',
-          bottom: 24,
+          bottom: 22,
           left: '50%',
           transform: 'translateX(-50%)',
           zIndex: 10,
-          fontSize: 11,
-          color: 'rgba(255,255,255,0.2)',
-          letterSpacing: '0.15em',
+          fontSize: 10,
+          color: 'rgba(255,255,255,0.18)',
+          letterSpacing: '0.16em',
           textTransform: 'uppercase',
         }}
       >

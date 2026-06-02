@@ -1,7 +1,6 @@
 'use client'
 import { useEffect, useRef } from 'react'
 import dynamic from 'next/dynamic'
-import KatanaSVG from './KatanaSVG'
 
 const ThreeBackground = dynamic(() => import('./ThreeBackground'), { ssr: false })
 
@@ -11,15 +10,14 @@ export default function HeroSection() {
   const masterRef = useRef(null)
   const brandingRef = useRef(null)
   const cardRef = useRef(null)
+  const imgRef = useRef(null)
 
   useEffect(() => {
-    let gsap, ScrollTrigger
     ;(async () => {
       const mod = await import('gsap')
-      gsap = mod.gsap || mod.default
+      const gsap = mod.gsap || mod.default
       const st = await import('gsap/ScrollTrigger')
-      ScrollTrigger = st.ScrollTrigger
-      gsap.registerPlugin(ScrollTrigger)
+      gsap.registerPlugin(st.ScrollTrigger)
 
       const ctx = gsap.context(() => {
         const tl = gsap.timeline({
@@ -32,22 +30,20 @@ export default function HeroSection() {
           },
         })
 
-        // Sword parallax - moves slower than scroll (upward exit)
+        // Background image parallax (moves slower)
+        tl.to(imgRef.current, { scale: 1.12, y: -60, duration: 1 }, 0)
+
+        // Sword subtle parallax
         tl.to(swordRef.current, { y: -80, rotation: -3, duration: 1 }, 0)
 
-        // "Master Your Skills" text exits up
-        tl.to(masterRef.current, { y: -200, opacity: 0, duration: 0.5 }, 0)
+        // "Master Your Skills" exits up
+        tl.to(masterRef.current, { y: -240, opacity: 0, duration: 0.5 }, 0)
 
-        // "StringTune" branding scales and exits
-        tl.to(brandingRef.current, {
-          y: -120,
-          scale: 1.3,
-          opacity: 0,
-          duration: 0.7,
-        }, 0.1)
+        // "StringTune" oversized exits
+        tl.to(brandingRef.current, { y: -140, scale: 1.3, opacity: 0, duration: 0.7 }, 0.1)
 
-        // Card slides slightly
-        tl.to(cardRef.current, { x: -60, opacity: 0, duration: 0.4 }, 0)
+        // Card exits left
+        tl.to(cardRef.current, { x: -80, opacity: 0, duration: 0.4 }, 0)
       }, sectionRef)
 
       return () => ctx.revert()
@@ -57,56 +53,92 @@ export default function HeroSection() {
   return (
     <section
       ref={sectionRef}
-      className="noise"
       style={{
         position: 'relative',
         width: '100%',
         height: '100vh',
-        background: 'linear-gradient(180deg, #080808 0%, #0f0808 50%, #0a0a0a 100%)',
         overflow: 'hidden',
+        background: '#080808',
       }}
     >
-      {/* Background gradient radial */}
+      {/* ── Real keyframe image as full-screen background ── */}
       <div
+        ref={imgRef}
         style={{
           position: 'absolute',
           inset: 0,
-          background: 'radial-gradient(ellipse 80% 60% at 60% 50%, rgba(120,20,20,0.25) 0%, transparent 70%)',
+          zIndex: 1,
+          willChange: 'transform',
         }}
-      />
+      >
+        <img
+          src="/assets/key_000_t00.00s_f0000.jpg"
+          alt=""
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            objectPosition: 'center',
+            display: 'block',
+          }}
+        />
+        {/* Dark vignette over image */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'linear-gradient(180deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.1) 40%, rgba(0,0,0,0.4) 100%)',
+          }}
+        />
+      </div>
 
-      {/* Three.js particle field */}
-      <ThreeBackground />
+      {/* Three.js particles overlay */}
+      <ThreeBackground style={{ zIndex: 3, opacity: 0.5 }} />
 
-      {/* Sword — large diagonal element */}
+      {/* Sword overlay — mirrors the angle from the frame */}
       <div
         ref={swordRef}
         style={{
           position: 'absolute',
-          top: '22%',
+          top: '30%',
           left: '-5%',
           width: '110%',
           transform: 'rotate(-18deg)',
           transformOrigin: '50% 50%',
-          zIndex: 10,
+          zIndex: 6,
           willChange: 'transform',
+          pointerEvents: 'none',
         }}
       >
-        <KatanaSVG
-          style={{ width: '100%', height: 'auto' }}
-          className="sword-glow"
-        />
+        {/* Thin red glow line mimicking the blade from the frame */}
+        <svg viewBox="0 0 1000 40" style={{ width: '100%', opacity: 0.6 }}>
+          <defs>
+            <linearGradient id="swordLine" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="transparent" />
+              <stop offset="20%" stopColor="#8B0000" stopOpacity="0.6" />
+              <stop offset="50%" stopColor="#e74c3c" stopOpacity="0.9" />
+              <stop offset="55%" stopColor="#ff8070" />
+              <stop offset="80%" stopColor="#c0392b" stopOpacity="0.5" />
+              <stop offset="100%" stopColor="transparent" />
+            </linearGradient>
+            <filter id="blur2"><feGaussianBlur stdDeviation="2" /></filter>
+          </defs>
+          <line x1="0" y1="20" x2="1000" y2="20" stroke="url(#swordLine)" strokeWidth="4" filter="url(#blur2)" />
+          <line x1="0" y1="20" x2="1000" y2="20" stroke="url(#swordLine)" strokeWidth="1.5" />
+        </svg>
       </div>
 
-      {/* "Master / Your / Skills" stacked text */}
+      {/* UI overlay — nav already fixed, these are section-specific */}
+      {/* "Master / Your / Skills" */}
       <div
         ref={masterRef}
         style={{
           position: 'absolute',
-          top: '12%',
-          right: '6%',
+          top: '10%',
+          right: '5%',
           textAlign: 'right',
           zIndex: 20,
+          willChange: 'transform, opacity',
         }}
       >
         {['Master', 'Your', 'Skills'].map((word, i) => (
@@ -114,9 +146,9 @@ export default function HeroSection() {
             key={word}
             className="text-hero"
             style={{
-              color: i === 2 ? 'rgba(248,200,192,0.9)' : 'white',
-              display: 'block',
+              color: i === 2 ? 'rgba(248,200,192,0.95)' : 'white',
               lineHeight: 0.88,
+              textShadow: '0 2px 30px rgba(0,0,0,0.8)',
             }}
           >
             {word}
@@ -124,7 +156,7 @@ export default function HeroSection() {
         ))}
       </div>
 
-      {/* "StringTune" oversized at bottom */}
+      {/* "StringTune" oversized bottom */}
       <div
         ref={brandingRef}
         style={{
@@ -133,12 +165,13 @@ export default function HeroSection() {
           left: '-2%',
           zIndex: 5,
           whiteSpace: 'nowrap',
+          willChange: 'transform, opacity',
         }}
       >
         <span
           className="text-oversize"
           style={{
-            color: 'rgba(248,200,192,0.18)',
+            color: 'rgba(248,200,192,0.12)',
             display: 'block',
             letterSpacing: '-0.05em',
             userSelect: 'none',
@@ -153,64 +186,60 @@ export default function HeroSection() {
         ref={cardRef}
         style={{
           position: 'absolute',
-          left: '5%',
-          top: '30%',
+          left: '4%',
+          top: '28%',
           width: 200,
-          background: 'rgba(255,255,255,0.05)',
-          border: '1px solid rgba(255,255,255,0.1)',
+          background: 'rgba(0,0,0,0.6)',
+          border: '1px solid rgba(255,255,255,0.12)',
           borderRadius: 8,
           overflow: 'hidden',
           zIndex: 30,
-          backdropFilter: 'blur(10px)',
+          backdropFilter: 'blur(12px)',
+          willChange: 'transform, opacity',
         }}
       >
-        {/* Card thumbnail */}
         <div
           style={{
-            height: 100,
-            background: 'linear-gradient(135deg, #1a0808 0%, #2d1010 50%, #1a0808 100%)',
-            position: 'relative',
+            height: 110,
             overflow: 'hidden',
           }}
         >
-          {/* Decorative diagonal lines */}
-          <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} viewBox="0 0 200 100">
-            <line x1="0" y1="100" x2="200" y2="0" stroke="rgba(192,57,43,0.3)" strokeWidth="1" />
-            <line x1="-40" y1="100" x2="160" y2="0" stroke="rgba(192,57,43,0.15)" strokeWidth="1" />
-            <line x1="40" y1="100" x2="240" y2="0" stroke="rgba(192,57,43,0.15)" strokeWidth="1" />
-          </svg>
-          <div style={{ position: 'absolute', bottom: 8, left: 8, fontSize: 10, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-            New lesson
-          </div>
+          <img
+            src="/assets/key_004_t01.07s_f0032.jpg"
+            alt="Skill Hub"
+            style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8 }}
+          />
         </div>
         <div style={{ padding: '10px 12px' }}>
-          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 4 }}>Skill Hub</div>
+          <div style={{ fontSize: 10, color: 'rgba(192,57,43,0.9)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 3, fontWeight: 700 }}>
+            Skill Hub
+          </div>
           <div style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>Balance &amp; Control</div>
         </div>
       </div>
 
-      {/* Dialog box — bottom right */}
+      {/* Dialog — bottom right */}
       <div
         style={{
           position: 'absolute',
-          bottom: '8%',
-          right: '5%',
+          bottom: '7%',
+          right: '4%',
           zIndex: 30,
           display: 'flex',
           alignItems: 'center',
           gap: 10,
         }}
       >
-        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.05em' }}>
+        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.05em' }}>
           Ready to begin?
         </span>
         <button
           style={{
-            background: 'rgba(192,57,43,0.8)',
+            background: 'rgba(192,57,43,0.9)',
             border: 'none',
             color: 'white',
             borderRadius: 999,
-            padding: '8px 20px',
+            padding: '8px 22px',
             fontSize: 12,
             fontWeight: 700,
             letterSpacing: '0.05em',
@@ -221,11 +250,11 @@ export default function HeroSection() {
         </button>
       </div>
 
-      {/* Vertical progress dots */}
+      {/* Vertical progress dots left */}
       <div
         style={{
           position: 'absolute',
-          left: 20,
+          left: 18,
           top: '50%',
           transform: 'translateY(-50%)',
           display: 'flex',
@@ -242,7 +271,6 @@ export default function HeroSection() {
               height: active ? 28 : 16,
               borderRadius: 2,
               background: active ? 'white' : 'rgba(255,255,255,0.2)',
-              transition: 'all 0.3s',
             }}
           />
         ))}

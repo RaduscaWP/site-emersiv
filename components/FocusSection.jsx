@@ -1,17 +1,31 @@
 'use client'
 import { useEffect, useRef } from 'react'
-import KatanaSVG from './KatanaSVG'
 
 const WORDS = [
-  { text: 'Concentrate', sub: 'Clear your mind' },
-  { text: 'Keep Scrolling', sub: 'The path opens' },
-  { text: 'The Spirit\nAwakened', sub: 'Feel the blade' },
+  {
+    text: 'Concentrate',
+    sub: 'Clear your mind',
+    frame: '/assets/key_011_t02.93s_f0088.jpg',
+    frameBlur: '/assets/key_008_t02.13s_f0064.jpg',
+  },
+  {
+    text: 'Keep Scrolling',
+    sub: 'The path opens',
+    frame: '/assets/key_017_t04.53s_f0136.jpg',
+    frameBlur: '/assets/key_015_t04.00s_f0120.jpg',
+  },
+  {
+    text: 'The Spirit\nAwakened',
+    sub: 'Feel the blade',
+    frame: '/assets/key_021_t05.60s_f0168.jpg',
+    frameBlur: '/assets/key_019_t05.07s_f0152.jpg',
+  },
 ]
 
 export default function FocusSection() {
   const containerRef = useRef(null)
-  const wordsRef = useRef([])
-  const swordRef = useRef(null)
+  const slidesRef = useRef([])
+  const textsRef = useRef([])
   const underlineRef = useRef(null)
 
   useEffect(() => {
@@ -26,11 +40,13 @@ export default function FocusSection() {
         const total = WORDS.length
 
         WORDS.forEach((_, i) => {
-          const el = wordsRef.current[i]
-          if (!el) return
+          const slide = slidesRef.current[i]
+          const textEl = textsRef.current[i]
+          if (!slide || !textEl) return
 
-          // Start state: blurred and slightly transparent
-          gsap.set(el, { filter: 'blur(30px)', opacity: 0, y: 30 })
+          // Initial state — blurred
+          gsap.set(slide, { opacity: 0 })
+          gsap.set(textEl, { filter: 'blur(35px)', opacity: 0, y: 25 })
 
           gsap.timeline({
             scrollTrigger: {
@@ -38,25 +54,17 @@ export default function FocusSection() {
               start: `top+=${i * (100 / total)}% top`,
               end: `top+=${(i + 1) * (100 / total)}% top`,
               scrub: 0.8,
-              toggleActions: 'play reverse play reverse',
             },
           })
-            .to(el, { filter: 'blur(0px)', opacity: 1, y: 0, duration: 0.4 }, 0)
-            .to(el, { filter: 'blur(20px)', opacity: 0, y: -30, duration: 0.4 }, 0.6)
+            // Reveal: image fades in, text un-blurs
+            .to(slide, { opacity: 1, duration: 0.3 }, 0)
+            .to(textEl, { filter: 'blur(0px)', opacity: 1, y: 0, duration: 0.35 }, 0)
+            // Exit: re-blur and fade out
+            .to(textEl, { filter: 'blur(25px)', opacity: 0, y: -25, duration: 0.35 }, 0.65)
+            .to(slide, { opacity: 0, duration: 0.35 }, 0.65)
         })
 
-        // Sword slow horizontal pan
-        gsap.to(swordRef.current, {
-          x: 60,
-          scrollTrigger: {
-            trigger: containerRef.current,
-            start: 'top top',
-            end: 'bottom top',
-            scrub: 2,
-          },
-        })
-
-        // Underline grows
+        // Growing red underline across scroll
         gsap.fromTo(
           underlineRef.current,
           { scaleX: 0 },
@@ -85,35 +93,49 @@ export default function FocusSection() {
         background: '#060606',
       }}
     >
-      {/* Sticky inner */}
       <div
         style={{
           position: 'sticky',
           top: 0,
           height: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
           overflow: 'hidden',
         }}
       >
-        {/* Sword horizontal */}
-        <div
-          ref={swordRef}
-          style={{
-            position: 'absolute',
-            top: '15%',
-            left: '-8%',
-            width: '116%',
-            transform: 'rotate(-6deg)',
-            zIndex: 5,
-            willChange: 'transform',
-          }}
-        >
-          <KatanaSVG style={{ width: '100%', opacity: 0.85 }} className="sword-glow" />
-        </div>
+        {/* Frame images — stacked, each fades in/out */}
+        {WORDS.map((word, i) => (
+          <div
+            key={i}
+            ref={(el) => (slidesRef.current[i] = el)}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              zIndex: i + 1,
+              willChange: 'opacity',
+            }}
+          >
+            <img
+              src={word.frame}
+              alt=""
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                objectPosition: 'center',
+                display: 'block',
+              }}
+            />
+            {/* Dark overlay to keep contrast */}
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                background: 'rgba(0,0,0,0.45)',
+              }}
+            />
+          </div>
+        ))}
 
-        {/* Red underline growing */}
+        {/* Red underline blade at bottom */}
         <div
           ref={underlineRef}
           style={{
@@ -125,19 +147,7 @@ export default function FocusSection() {
             background: 'linear-gradient(90deg, transparent, #c0392b, #e74c3c, #c0392b, transparent)',
             transformOrigin: 'left',
             filter: 'blur(1px)',
-            zIndex: 20,
-          }}
-        />
-
-        {/* Progress bar top */}
-        <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            height: 2,
-            width: '100%',
-            background: 'rgba(255,255,255,0.05)',
+            zIndex: 50,
           }}
         />
 
@@ -145,13 +155,13 @@ export default function FocusSection() {
         <div
           style={{
             position: 'absolute',
-            left: 20,
+            left: 18,
             top: '50%',
             transform: 'translateY(-50%)',
             display: 'flex',
             flexDirection: 'column',
             gap: 8,
-            zIndex: 50,
+            zIndex: 60,
           }}
         >
           {WORDS.map((_, i) => (
@@ -161,63 +171,66 @@ export default function FocusSection() {
                 width: 2,
                 height: 20,
                 borderRadius: 2,
-                background: i === 0 ? 'white' : 'rgba(255,255,255,0.15)',
+                background: 'rgba(255,255,255,0.2)',
               }}
             />
           ))}
         </div>
 
-        {/* Words stacked, each independently revealed */}
-        <div style={{ position: 'relative', textAlign: 'center', zIndex: 15 }}>
-          {WORDS.map((word, i) => (
+        {/* Text overlays — independently blur-revealed */}
+        {WORDS.map((word, i) => (
+          <div
+            key={i}
+            ref={(el) => (textsRef.current[i] = el)}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 40,
+              willChange: 'filter, opacity, transform',
+              pointerEvents: 'none',
+            }}
+          >
             <div
-              key={i}
-              ref={(el) => (wordsRef.current[i] = el)}
+              className="text-section"
               style={{
-                position: i === 0 ? 'relative' : 'absolute',
-                inset: 0,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                willChange: 'filter, opacity, transform',
+                color: 'rgba(248,200,192,0.95)',
+                whiteSpace: 'pre-line',
+                textAlign: 'center',
+                textShadow: '0 0 60px rgba(0,0,0,0.9), 0 2px 10px rgba(0,0,0,0.8)',
+                position: 'relative',
               }}
             >
-              <div
-                className="text-section blade-underline"
+              {word.text}
+              {/* Red underline per word */}
+              <span
                 style={{
-                  color: 'rgba(248,200,192,0.92)',
-                  whiteSpace: 'pre-line',
-                  textAlign: 'center',
+                  display: 'block',
+                  height: 2,
+                  background: 'linear-gradient(90deg, transparent, #e74c3c, transparent)',
+                  marginTop: 4,
+                  filter: 'blur(0.5px)',
                 }}
-              >
-                {word.text}
-              </div>
-              <div
-                style={{
-                  marginTop: 16,
-                  fontSize: 13,
-                  letterSpacing: '0.2em',
-                  textTransform: 'uppercase',
-                  color: 'rgba(255,255,255,0.3)',
-                  fontWeight: 500,
-                }}
-              >
-                {word.sub}
-              </div>
+              />
             </div>
-          ))}
-        </div>
-
-        {/* Ambient light */}
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            background: 'radial-gradient(ellipse 50% 40% at 50% 50%, rgba(100,10,10,0.2) 0%, transparent 70%)',
-            pointerEvents: 'none',
-          }}
-        />
+            <div
+              style={{
+                marginTop: 18,
+                fontSize: 12,
+                letterSpacing: '0.25em',
+                textTransform: 'uppercase',
+                color: 'rgba(255,255,255,0.35)',
+                fontWeight: 500,
+                textShadow: '0 1px 4px rgba(0,0,0,0.9)',
+              }}
+            >
+              {word.sub}
+            </div>
+          </div>
+        ))}
       </div>
     </section>
   )
